@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user %}
+<a href="/file/create" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Создать</a>
+
+<table class="table">
+    {% for item in list %}
+    <tr>
+        <td>{{ item.name }}</td>
+        <td><a href="/file/edit" class="btn">Редактировать</a></td>
+        <td><a href="/file/edit" class="btn">Удалить</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div class="alert alert-info">
+Войдите для просмотра списка доступных ресурсов
+</div>
+{% endif %}
+{% endblock %}
