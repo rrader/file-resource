@@ -1,14 +1,20 @@
 from datetime import datetime
+import logging
 from urllib.parse import parse_qs
 from authentication import need_authentication
+from functools import wraps
 import random
+
+logger = logging.getLogger(__name__)
 
 MAX_DELTA = 60
 
 
 def need_authorization(view):
+    @wraps(view)
     def wrap_view(self, *args, **kwargs):
         if not self.authorized:
+            logger.warn("user '{}' not authorized".format(self.user.name))
             self.send_response(302)
             self.send_header('location', '/re-auth')
             self.end_headers()
@@ -38,8 +44,9 @@ class AuthorizationMixin(object):
         self.authorized = True
         if sid in self.AUTHORIZATION:
             delta = (datetime.now() - self.AUTHORIZATION[sid]['updated']).seconds
-            if delta > MAX_DELTA:
+            if delta >= MAX_DELTA:
                 self.authorized = False
+                logger.info("user '{}' authorization expired".format(self.user.name))
             self.auth_left = MAX_DELTA - delta
         else:
             self.AUTHORIZATION[sid] = dict(updated=datetime.now())
@@ -53,6 +60,7 @@ class AuthorizationMixin(object):
                                 (lambda a, b: a*b, '*'),
                                 ])
         question = "({}) {} ({})".format(x, action[1], y)
+        logger.info("user '{}' authorization question: {}".format(self.user.name, question))
         self.AUTHORIZATION[self.sid]['answer'] = str(action[0](x, y))
         self.render_template("re-auth.html", reauth=True,
                              question=question)
@@ -65,8 +73,10 @@ class AuthorizationMixin(object):
 
         if post_data['secret'][0] == self.AUTHORIZATION[self.sid]['answer']:
             self.AUTHORIZATION[self.sid].update(dict(updated=datetime.now()))
+            logger.info("user '{}' authorized! authorization renewed".format(self.user.name))
             self.send_response(302)
             self.send_header('location', '/')
             self.end_headers()
         else:
+            logger.warn("user '{}' authorization FAIL! logging out".format(self.user.name))
             self.logout_view()

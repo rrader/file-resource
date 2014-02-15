@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table table-striped table-bordered table-condensed">
+    {% for item in users %}
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-user"></span>
+            {{ item.name }}
+            {% if item.superuser %}
+            <span class="badge"><span class="glyphicon glyphicon-thumbs-up"></span> Администратор</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="panel well">
+    <h3>Создать пользователя</h3>
+    <form action="/user/create" method="POST">
+      <div class="form-group">
+        <label for="name">Имя пользователя</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Имя пользователя" />
+      </div>
+      <div class="form-group">
+        <label for="password">Пароль</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Пароль" />
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,10 +1,13 @@
 from http import cookies
+import logging
 from urllib.parse import parse_qs
 import uuid
+from functools import wraps
 import hashlib
 from peewee import DoesNotExist
-import random
 from resource import User
+
+logger = logging.getLogger(__name__)
 
 SALT = 'YJVz4amAuw'
 
@@ -18,16 +21,19 @@ def authenticate(username, password):
     try:
         user = User.select().where(User.name == username).get()
     except DoesNotExist:
+        logger.warn("user '{}' not found".format(username))
         return
     if make_password(username, password) == user.password:
-        # authenticated OK
-        # TODO: logging
+        logger.info("user '{}' authenticated OK".format(username))
         return user
+    logger.warn("wrong password for user '{}'".format(username))
 
 
 def need_authentication(view):
+    @wraps(view)
     def wrap_view(self, *args, **kwargs):
         if not self.user:
+            logger.warn("not authenticated in view '{}'".format(view.__name__))
             self.send_response(302)
             self.send_header('location', '/auth')
             self.end_headers()
@@ -107,6 +113,7 @@ class AuthenticationMixin(object):
             self.end_headers()
             return
 
+    @need_authentication
     def logout_view(self):
         self.send_response(302)
         self.cookie['session'] = ''
@@ -115,3 +122,4 @@ class AuthenticationMixin(object):
         self.wfile.write(self.cookie.output().encode())
         self.wfile.write(b'\n')
         self.end_headers()
+        logger.info("user '{}' logged out".format(self.user.name))

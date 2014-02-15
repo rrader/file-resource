@@ -48,10 +48,13 @@
         </div><!--/.container-fluid -->
       </div>
 {% if user %}
-    <div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> Вы вошли как {{user.name}}</div>
+    <div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> Вы вошли как {{user.name}} </div>
+    {% if user.superuser %}
+        <div class="alert alert-warning"></span><span class="glyphicon glyphicon-thumbs-up"></span> Вы администратор</div>
+    {% endif %}
     {% if not reauth %}
     <div class="alert alert-info"><span class="glyphicon glyphicon-lock"></span> Вы авторизованы:
-        <span class="glyphicon glyphicon-time"></span> <span id="auth_left">{{ auth_left - 2 }}</span> секунд осталось
+        <span class="glyphicon glyphicon-time"></span> <span id="auth_left">{{ auth_left }}</span> секунд осталось
         <ul>
         {% for perm in user.authorization %}
             <li>{{perm.name}}</li>

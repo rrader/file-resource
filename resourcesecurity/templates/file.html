@@ -4,13 +4,35 @@
   <div class="form-group">
     <label for="name">Имя файла</label>
     <input type="text" class="form-control" id="name" name="name" placeholder="Имя файла" value="{{data.name}}"
-      {% if method == "update" %}readonly{% endif %} />
+      {% if method != "create" %}readonly{% endif %} />
   </div>
   <div class="form-group">
     <label for="text">Текст</label>
-    <textarea type="password" class="form-control" id="text" name="text">{{data.data}}</textarea>
+    <textarea type="password" class="form-control" id="text" name="text"
+            {% if method == "read" %}readonly{% endif %}>{{data.data}}</textarea>
   </div>
-
+  {% if method != "read" %}
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" name="ru" {% if data.ru %}checked{% endif %}> read by owner
+    </label>
+  </div>
+    <div class="checkbox">
+    <label>
+      <input type="checkbox" name="wu" {% if data.wu %}checked{% endif %}> write by owner
+    </label>
+  </div>
+    <div class="checkbox">
+    <label>
+      <input type="checkbox" name="ro" {% if data.ro %}checked{% endif %}> read by others
+    </label>
+  </div>
+    <div class="checkbox">
+    <label>
+      <input type="checkbox" name="wo" {% if data.wo %}checked{% endif %}> write by others
+    </label>
+  </div>
   <button type="submit" class="btn btn-default">Submit</button>
+  {% endif %}
 </form>
 {% endblock %}

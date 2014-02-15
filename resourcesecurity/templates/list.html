@@ -7,15 +7,30 @@
     {% for item in list %}
     <tr>
         <td>
-            <span class="glyphicon glyphicon glyphicon-eye-open"></span>
-            <span class="glyphicon glyphicon glyphicon-edit"></span>
-            <br>
+            {% if item.can_read(user) %}
+            <span class="glyphicon glyphicon-eye-open"></span>
+            {% endif %}
+            {% if item.can_write(user) %}
+            <span class="glyphicon glyphicon-edit"></span>
+            {% endif %}
+            {% if not (item.can_read(user) or item.can_write(user)) %}
+            <span class="glyphicon glyphicon-lock"></span>
+            {% endif %}
             {{ item.name }}
             <span class="badge">{{item.owner}}</span>
         </td>
+        <td>{{item.mode()}}</td>
         <td width="40%">
+            {% if item.can_read(user) %}
+            <a href="/file/read?name={{item.name}}" class="btn"><span class="glyphicon glyphicon-eye-open"></span> Просмотр</a>
+            {% endif %}
+            {% if item.can_write(user) %}
             <a href="/file/update?name={{item.name}}" class="btn"><span class="glyphicon glyphicon-edit"></span> Редактировать</a>
             <a href="/file/delete?name={{item.name}}" class="btn"><span class="glyphicon glyphicon-remove-circle"></span> Удалить</a>
+            {% endif %}
+            {% if not (item.can_read(user) or item.can_write(user)) %}
+            <span class="glyphicon glyphicon-lock"></span> нет доступа
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

@@ -1,3 +1,4 @@
+from admin import AdminMixin
 from authorization import AuthorizationMixin
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -8,7 +9,6 @@ from authentication import AuthenticationMixin
 from provider import ResourceProviderMixin
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -19,7 +19,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         pass
 
 
-class ResourceHandler(ResourceProviderMixin, AuthorizationMixin, AuthenticationMixin, HTTPRequestHandler):
+class ResourceHandler(AdminMixin, ResourceProviderMixin,
+                      AuthorizationMixin, AuthenticationMixin,
+                      HTTPRequestHandler):
     @property
     def context(self):
         return {'username': self.username,
@@ -60,16 +62,19 @@ class ResourceHandler(ResourceProviderMixin, AuthorizationMixin, AuthenticationM
     # Static files
     # ===================================================
     def send_file(self, param):
+        logger.debug("static file {} requested".format(param))
         file = open(os.path.join(os.path.curdir, param), 'rb').read()
         self.wfile.write(file)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='journal.log', level=logging.INFO,
+                        format='%(asctime)s %(name)s:%(levelname)s: %(message)s')
     httpd = HTTPServer(("0.0.0.0", 8000), ResourceHandler)
     logger.info("Starting server")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        logger.info("\nKeyboard interrupt received, exiting.")
+        logger.info("Keyboard interrupt received, exiting.")
         httpd.server_close()
         sys.exit(0)
