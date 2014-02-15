@@ -28,7 +28,7 @@ class ResourceProviderMixin(object):
     # Views
     # ===================================================
     def file_list_view(self):
-        self.render_template("list.html")
+        self.render_template("list.html", list=FileResource.select())
 
     def file_edit_view(self, name=None):
         if not self.user:
@@ -86,12 +86,3 @@ class ResourceProviderMixin(object):
         self.send_response(302)
         self.send_header('location', '/file/update?name={}'.format(file.name))
         self.end_headers()
-
-    def delete(self):
-        pass
-
-    def update(self):
-        pass
-
-    def list(self):
-        pass

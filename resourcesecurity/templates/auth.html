@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% if error %}
-        <div class="alert alert-error">{{ error }}</div>
+        <div class="alert alert-danger">{{ error }}</div>
 {% endif %}
 
 <form action="/auth" method="POST">

@@ -3,12 +3,12 @@
 {% if user %}
 <a href="/file/create" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> Создать</a>
 
-<table class="table">
+<table class="table table-striped table-bordered table-condensed">
     {% for item in list %}
     <tr>
         <td>{{ item.name }}</td>
-        <td><a href="/file/edit" class="btn">Редактировать</a></td>
-        <td><a href="/file/edit" class="btn">Удалить</a></td>
+        <td><a href="/file/update?name={{item.name}}" class="btn">Редактировать</a></td>
+        <td><a href="/file/update?name={{item.name}}" class="btn">Удалить</a></td>
     </tr>
     {% endfor %}
 </table>
