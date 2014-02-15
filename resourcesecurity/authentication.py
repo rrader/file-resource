@@ -3,6 +3,7 @@ from urllib.parse import parse_qs
 import uuid
 import hashlib
 from peewee import DoesNotExist
+import random
 from resource import User
 
 SALT = 'YJVz4amAuw'
@@ -22,6 +23,17 @@ def authenticate(username, password):
         # authenticated OK
         # TODO: logging
         return user
+
+
+def need_authentication(view):
+    def wrap_view(self, *args, **kwargs):
+        if not self.user:
+            self.send_response(302)
+            self.send_header('location', '/auth')
+            self.end_headers()
+            return
+        view(self, *args, **kwargs)
+    return wrap_view
 
 
 class AuthenticationMixin(object):
@@ -60,6 +72,7 @@ class AuthenticationMixin(object):
             self.user = user
             sid = uuid.uuid1().hex
             self.SESSIONS[sid] = user
+            self.authorize(sid)
 
         if sid:
             self.send_response(302)
@@ -81,6 +94,8 @@ class AuthenticationMixin(object):
         if 'session' in self.cookie:
             if self.cookie['session'].value in self.SESSIONS:
                 self.user = self.SESSIONS[self.cookie['session'].value]
+        self.sid = self.cookie['session'].value
+        self.authorize(self.sid)
 
     def auth_view(self, error=None):
         if not self.user:

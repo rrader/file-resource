@@ -1,4 +1,6 @@
 from urllib.parse import parse_qs
+from authentication import need_authentication
+from authorization import need_authorization
 from peewee import DoesNotExist
 from resource import FileResource
 
@@ -12,8 +14,10 @@ class ResourceProviderMixin(object):
             args = self.path.split('?', 1)[1]
             name = parse_qs(args)['name']
             return self.file_edit_view(name=name)
-        if self.path == '/file/remove':
-            return self.logout_view()
+        if self.path.startswith('/file/remove?'):
+            args = self.path.split('?', 1)[1]
+            name = parse_qs(args)['name']
+            return self.file_remove_view(name)
         if self.path == '/file':
             return self.file_list_view()
 
@@ -27,15 +31,14 @@ class ResourceProviderMixin(object):
     # ===================================================
     # Views
     # ===================================================
+    @need_authentication
+    @need_authorization
     def file_list_view(self):
         self.render_template("list.html", list=FileResource.select())
 
+    @need_authentication
+    @need_authorization
     def file_edit_view(self, name=None):
-        if not self.user:
-            self.send_response(302)
-            self.send_header('location', '/')
-            self.end_headers()
-            return
         method = "create"
         data = {}
         if name:
@@ -49,6 +52,8 @@ class ResourceProviderMixin(object):
             data['data'] = file.data
         self.render_template("file.html", method=method, data=data)
 
+    @need_authentication
+    @need_authorization
     def file_create_post_view(self):
         if not self.user:
             self.send_response(302)
@@ -69,6 +74,8 @@ class ResourceProviderMixin(object):
         self.send_header('location', '/file/update?name={}'.format(file.name))
         self.end_headers()
 
+    @need_authentication
+    @need_authorization
     def file_edit_post_view(self):
         length = int(self.headers['Content-Length'])
         data = self.rfile.read(length)
@@ -86,3 +93,8 @@ class ResourceProviderMixin(object):
         self.send_response(302)
         self.send_header('location', '/file/update?name={}'.format(file.name))
         self.end_headers()
+
+    @need_authentication
+    @need_authorization
+    def file_remove_view(self, name):
+        pass

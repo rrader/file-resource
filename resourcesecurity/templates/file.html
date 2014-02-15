@@ -4,7 +4,7 @@
   <div class="form-group">
     <label for="name">Имя файла</label>
     <input type="text" class="form-control" id="name" name="name" placeholder="Имя файла" value="{{data.name}}"
-      {% if method == "update" %}disabled{% endif %} />
+      {% if method == "update" %}readonly{% endif %} />
   </div>
   <div class="form-group">
     <label for="text">Текст</label>

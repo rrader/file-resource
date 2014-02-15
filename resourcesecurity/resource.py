@@ -1,5 +1,6 @@
 import os
-from peewee import Model, SqliteDatabase, CharField, TextField, DoesNotExist, BooleanField
+from peewee import Model, SqliteDatabase, CharField, TextField, DoesNotExist, BooleanField, ForeignKeyField, \
+    IntegerField
 
 DB = SqliteDatabase(os.path.join(os.path.curdir, 'data.sqlite'))
 
@@ -22,12 +23,22 @@ class FileResource(Model):
         database = DB
 
 
+class Permission(Model):
+    PERMISSION_READ = 1
+    PERMISSION_READWRITE = 2
+
+    user = ForeignKeyField(User)
+    file = ForeignKeyField(FileResource)
+    kind = IntegerField(default=PERMISSION_READ)
+
 if __name__ == "__main__":
     from authentication import make_password
     if not FileResource.table_exists():
         FileResource.create_table()
     if not User.table_exists():
         User.create_table()
+    if not Permission.table_exists():
+        Permission.create_table()
 
     try:
         User.select().where(User.name == 'admin').get()

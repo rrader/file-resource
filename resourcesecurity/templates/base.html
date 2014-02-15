@@ -3,6 +3,19 @@
 <head>
     <title>File Resources</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    {% if not reauth %}
+    <script>
+        setInterval(function(){
+             var item = document.getElementById("auth_left");
+             var counter = parseInt(item.innerHTML) - 1;
+             if (counter <= 0) {
+                document.location = '/re-auth';
+             } else {
+                item.innerHTML = counter;
+             }
+         }, 1000);
+    </script>
+    {% endif %}
 </head>
 <body>
     <div class="container">
@@ -34,6 +47,19 @@
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </div>
+{% if user %}
+    <div class="alert alert-success"><span class="glyphicon glyphicon-ok"></span> Вы вошли как {{user.name}}</div>
+    {% if not reauth %}
+    <div class="alert alert-info"><span class="glyphicon glyphicon-lock"></span> Вы авторизованы:
+        <span class="glyphicon glyphicon-time"></span> <span id="auth_left">{{ auth_left - 2 }}</span> секунд осталось
+        <ul>
+        {% for perm in user.authorization %}
+            <li>{{perm.name}}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {%endif%}
+{% endif %}
 
 {% block content %}
 {% endblock %}

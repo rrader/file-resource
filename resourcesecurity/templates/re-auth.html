@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+{% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<h3>Повторная авторизация</h3>
+<form action="/re-auth" method="POST">
+  <div class="form-group">
+    <label for="secret">{{question}}</label>
+    <input type="text" class="form-control" id="secret" name="secret" placeholder="ответ">
+  </div>
+
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}

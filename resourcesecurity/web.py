@@ -1,3 +1,4 @@
+from authorization import AuthorizationMixin
 import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
@@ -18,12 +19,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         pass
 
 
-class ResourceHandler(ResourceProviderMixin, AuthenticationMixin, HTTPRequestHandler):
+class ResourceHandler(ResourceProviderMixin, AuthorizationMixin, AuthenticationMixin, HTTPRequestHandler):
     @property
     def context(self):
         return {'username': self.username,
                 'user': self.user,
-                'path': self.path
+                'path': self.path,
+                'auth_left': self.auth_left,
                }
 
     def render_template(self, name, code=200, *args, **kwargs):
