@@ -27,8 +27,8 @@ class AuthorizationMixin(object):
     AUTHORIZATION = {}
 
     def __init__(self, *args, **kwargs):
+        self.auth_left = 0
         super().__init__(*args, **kwargs)
-        self.auth_delta = 0
 
     def do_GET(self):
         super().do_GET()
@@ -42,7 +42,7 @@ class AuthorizationMixin(object):
 
     def authorize(self, sid):
         self.authorized = True
-        if sid in self.AUTHORIZATION:
+        if sid in self.AUTHORIZATION and self.user:
             delta = (datetime.now() - self.AUTHORIZATION[sid]['updated']).seconds
             if delta >= MAX_DELTA:
                 self.authorized = False

@@ -100,8 +100,9 @@ class AuthenticationMixin(object):
         if 'session' in self.cookie:
             if self.cookie['session'].value in self.SESSIONS:
                 self.user = self.SESSIONS[self.cookie['session'].value]
-        self.sid = self.cookie['session'].value
-        self.authorize(self.sid)
+        if self.cookie and 'session' in self.cookie:
+            self.sid = self.cookie['session'].value
+            self.authorize(self.sid)
 
     def auth_view(self, error=None):
         if not self.user:

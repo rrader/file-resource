@@ -57,7 +57,7 @@ class ResourceProviderMixin(object):
             args = self.path.split('?', 1)[1]
             name = parse_qs(args)['name']
             return self.file_read_view(name=name)
-        if self.path.startswith('/file/remove?'):
+        if self.path.startswith('/file/delete?'):
             args = self.path.split('?', 1)[1]
             name = parse_qs(args)['name']
             return self.file_remove_view(name)
@@ -171,3 +171,6 @@ class ResourceProviderMixin(object):
     def file_remove_view(self, file):
         logger.info("file '{}' <{}> removing by '{}'".format(file.name, file.mode(), file.owner))
         file.delete_instance()
+        self.send_response(302)
+        self.send_header('location', '/'.format(file.name))
+        self.end_headers()
