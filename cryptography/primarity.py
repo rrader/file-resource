@@ -38,9 +38,9 @@ def rabin_test(n):
 
     return True
 
-def get_prime():
+def get_prime(bits=128):
     while True:
-        number = random.getrandbits(128)
+        number = random.getrandbits(bits)
         if rabin_test(number):
             return number
 
