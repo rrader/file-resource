@@ -70,6 +70,8 @@ class ResourceProviderMixin(object):
             return self.file_edit_post_view()
         if self.path == '/file/create':
             return self.file_create_post_view()
+        if self.path == '/file/upload':
+            return self.file_upload_post_view()
 
     # ===================================================
     # Views
@@ -174,3 +176,10 @@ class ResourceProviderMixin(object):
         self.send_response(302)
         self.send_header('location', '/'.format(file.name))
         self.end_headers()
+
+    @need_authentication
+    @need_authorization
+    def file_upload_post_view(self):
+        length = int(self.headers['Content-Length'])
+        data = self.rfile.read(length)
+        print(data)

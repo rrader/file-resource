@@ -8,6 +8,7 @@ class User(Model):
     name = CharField(primary_key=True)
     password = CharField()
     superuser = BooleanField(default=False)
+    disabled = BooleanField(default=False)
 
     class Meta:
         database = DB

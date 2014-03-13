@@ -23,6 +23,9 @@ def authenticate(username, password):
     except DoesNotExist:
         logger.warn("user '{}' not found".format(username))
         return
+    if user.disabled and not user.superuser:
+        logger.warn("user '{}' is disabled".format(username))
+        return
     if make_password(username, password) == user.password:
         logger.info("user '{}' authenticated OK".format(username))
         return user
@@ -44,6 +47,7 @@ def need_authentication(view):
 
 class AuthenticationMixin(object):
     SESSIONS = {}
+    ATTEMPTS = {}
 
     def do_GET(self):
         super().do_GET()
@@ -79,6 +83,21 @@ class AuthenticationMixin(object):
             sid = uuid.uuid1().hex
             self.SESSIONS[sid] = user
             self.authorize(sid)
+        else:
+            username = post_data['user'][0]
+            if username not in self.ATTEMPTS:
+                self.ATTEMPTS[username] = 0
+            self.ATTEMPTS[username] += 1
+            logger.warn("{} attempt to login as '{}'".format(self.ATTEMPTS[username], username))
+            if self.ATTEMPTS[username] > 3:
+                try:
+                    user = User.select().where(User.name == username).get()
+                except DoesNotExist:
+                    logger.warn("user '{}' not found".format(username))
+                    return
+                user.disabled = True
+                user.save()
+                logger.warn("user '{}' DISABLED".format(username))
 
         if sid:
             self.send_response(302)

@@ -2,6 +2,7 @@ import logging
 from urllib.parse import parse_qs
 from authentication import need_authentication, make_password
 from authorization import need_authorization
+from peewee import DoesNotExist
 from resource import User
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,10 @@ class AdminMixin(object):
         super().do_GET()
         if self.path == '/admin':
             return self.admin_view()
+        if self.path.startswith('/user/enable?'):
+            args = self.path.split('?', 1)[1]
+            name = parse_qs(args)['name']
+            return self.enable_user_view(name=name)
 
     def do_POST(self):
         super().do_POST()
@@ -49,6 +54,20 @@ class AdminMixin(object):
         user = User.create(name=name, password=make_password(name, password))
         user.save()
         logger.info("user '{}' created successfully".format(name))
+        self.send_response(302)
+        self.send_header('location', '/admin')
+        self.end_headers()
+
+    @need_authentication
+    @need_authorization
+    def enable_user_view(self, name):
+        try:
+            user = User.select().where(User.name == name).get()
+        except DoesNotExist:
+            logger.warn("user '{}' not found".format(name))
+            return
+        user.disabled = False
+        user.save()
         self.send_response(302)
         self.send_header('location', '/admin')
         self.end_headers()

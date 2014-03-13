@@ -8,6 +8,10 @@
             {{ item.name }}
             {% if item.superuser %}
             <span class="badge"><span class="glyphicon glyphicon-thumbs-up"></span> Администратор</span>
+            {% else %}
+                {% if item.disabled %}
+                <span class="badge"><span class="glyphicon glyphicon-thumbs-down"></span> <u><a style="color:white" href="/user/enable?name={{ item.name }}">Заблокирован</a></u></span>
+                {% endif %}
             {% endif %}
         </td>
     </tr>
