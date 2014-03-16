@@ -60,7 +60,6 @@ def encrypt(data, public_key):
         encrypted_block = encrypt_block(block_i, public_key)
         encrypted_block_bytes = int.to_bytes(encrypted_block, byteorder='big', length=BYTES)
         encrypted.append(encrypted_block_bytes)
-        print("encrypted block", block_i, '->', encrypted_block, encrypted_block_bytes)
     return b''.join(encrypted)
 
 
@@ -69,10 +68,9 @@ def decrypt(data, private_key):
     for block in blocks(data):
         block_i = int.from_bytes(block, byteorder='big')
         decrypted_block = decrypt_block(block_i, private_key)
-        print("block to decrypt", block_i, '->', decrypted_block, block)
         decrypted_block_bytes = int.to_bytes(decrypted_block, byteorder='big', length=BYTES)
         decrypted.append(decrypted_block_bytes)
-    print(decrypted)
+    return b''.join(decrypted)
 
 
 if __name__ == "__main__":
@@ -80,8 +78,9 @@ if __name__ == "__main__":
     print(keys)
 
     encrypted = encrypt('hello', keys.public)
-    print(encrypted, len(encrypted))
+    print(encrypted)
     decrypted = decrypt(encrypted, keys.private)
+    print(decrypted)
 
-    x = encrypt_block(1751477356, keys.public)
-    print(decrypt_block(x, keys.private))
+    # x = encrypt_block(1751477356, keys.public)
+    # print(decrypt_block(x, keys.private))

@@ -1,0 +1,3 @@
+[submodule "cryptography/pydes"]
+	path = cryptography/pydes
+	url = git@github.com:toddw-as/pyDes.git
